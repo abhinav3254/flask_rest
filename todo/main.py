@@ -1,8 +1,12 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import dbconnection
 from datetime import datetime
 
 app = Flask(__name__)
+CORS(app)
+
+CORS(app, resources={r"*": {"origins": "http://localhost:4200"}})
 
 
 class Todo:
@@ -22,6 +26,7 @@ def hello_world():
     return "Hello, World!"
 
 
+# get all the todos
 @app.route("/todos", methods=["GET"])
 def get_todos():
     todos = dbconnection.get_todos_from_db()

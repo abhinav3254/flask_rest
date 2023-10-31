@@ -16,7 +16,7 @@ mycursor.execute(
         title VARCHAR(255) NOT NULL,
         description TEXT,
         completed BOOLEAN DEFAULT FALSE,
-        due_date DATE
+        due_date DATETIME
     )
 """
 )
@@ -24,8 +24,13 @@ mycursor.execute(
 
 # method to add a Todo to the database
 def add_todo_to_db(todo):
+    # Check if the 'completed' field is not provided or empty, set a default value (e.g., 0 or False)
+    completed = (
+        todo.completed if todo.completed is not None and todo.completed != "" else False
+    )
+
     sql = "INSERT INTO todos (title, description, completed, due_date) VALUES (%s, %s, %s, %s)"
-    val = (todo.title, todo.description, todo.completed, todo.due_date)
+    val = (todo.title, todo.description, completed, todo.due_date)
     mycursor.execute(sql, val)
     mydb.commit()
 
