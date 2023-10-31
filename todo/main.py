@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 import dbconnection
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -50,6 +51,35 @@ def add_todo():
     return (
         jsonify({"message": "Todo added successfully", "todo": new_todo.__dict__}),
         201,
+    )
+
+
+# method to update a todo
+@app.route("/update_todo/<int:todo_id>", methods=["PUT"])
+def update_todo(todo_id):
+    data = request.get_json()
+    title = data.get("title")
+    description = data.get("description")
+    completed = data.get("completed", False)
+    due_date = data.get("due_date")
+
+    updated_todo = Todo(title, description, completed, due_date)
+    dbconnection.update_todo_by_id(todo_id, updated_todo)
+
+    return (
+        jsonify({"message": f"Todo with ID {todo_id} updated successfully"}),
+        200,
+    )
+
+
+# method to delete a todo
+@app.route("/delete_todo/<int:todo_id>", methods=["DELETE"])
+def delete_todo(todo_id):
+    dbconnection.delete_todo_by_id(todo_id)
+
+    return (
+        jsonify({"message": f"Todo with ID {todo_id} deleted successfully"}),
+        200,
     )
 
 
