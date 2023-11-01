@@ -1,7 +1,12 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 import dbconnection
+from datetime import datetime
 
 app = Flask(__name__)
+CORS(app)
+
+CORS(app, resources={r"*": {"origins": "http://localhost:4200"}})
 
 
 class Todo:
@@ -21,6 +26,7 @@ def hello_world():
     return "Hello, World!"
 
 
+# get all the todos
 @app.route("/todos", methods=["GET"])
 def get_todos():
     todos = dbconnection.get_todos_from_db()
@@ -50,6 +56,35 @@ def add_todo():
     return (
         jsonify({"message": "Todo added successfully", "todo": new_todo.__dict__}),
         201,
+    )
+
+
+# method to update a todo
+@app.route("/update_todo/<int:todo_id>", methods=["PUT"])
+def update_todo(todo_id):
+    data = request.get_json()
+    title = data.get("title")
+    description = data.get("description")
+    completed = data.get("completed", False)
+    due_date = data.get("due_date")
+
+    updated_todo = Todo(title, description, completed, due_date)
+    dbconnection.update_todo_by_id(todo_id, updated_todo)
+
+    return (
+        jsonify({"message": f"Todo with ID {todo_id} updated successfully"}),
+        200,
+    )
+
+
+# method to delete a todo
+@app.route("/delete_todo/<int:todo_id>", methods=["DELETE"])
+def delete_todo(todo_id):
+    dbconnection.delete_todo_by_id(todo_id)
+
+    return (
+        jsonify({"message": f"Todo with ID {todo_id} deleted successfully"}),
+        200,
     )
 
 
